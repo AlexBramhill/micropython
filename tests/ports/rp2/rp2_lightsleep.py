@@ -15,7 +15,7 @@ except ImportError:
     print("SKIP")
     raise SystemExit
 
-from sys import stdout, platform
+from sys import stdout
 
 try:
     led = Pin(Pin.board.LED, Pin.OUT)
