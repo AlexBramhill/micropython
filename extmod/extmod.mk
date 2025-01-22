@@ -61,6 +61,8 @@ SRC_EXTMOD_C += \
 	extmod/vfs_fat_diskio.c \
 	extmod/vfs_fat_file.c \
 	extmod/vfs_lfs.c \
+	extmod/vfs_rom.c \
+	extmod/vfs_rom_file.c \
 	extmod/vfs_posix.c \
 	extmod/vfs_posix_file.c \
 	extmod/vfs_reader.c \
@@ -292,6 +294,7 @@ SRC_THIRDPARTY_C += $(addprefix $(MBEDTLS_DIR)/library/,\
 	pkcs12.c \
 	pkcs5.c \
 	pkparse.c \
+	pk_ecc.c \
 	pk_wrap.c \
 	pkwrite.c \
 	platform.c \

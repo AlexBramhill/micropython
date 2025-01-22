@@ -273,6 +273,7 @@ function ci_qemu_setup_arm {
 }
 
 function ci_qemu_setup_rv32 {
+    ci_mpy_format_setup
     ci_gcc_riscv_setup
     sudo apt-get update
     sudo apt-get install qemu-system
@@ -284,14 +285,18 @@ function ci_qemu_build_arm {
     make ${MAKEOPTS} -C ports/qemu submodules
     make ${MAKEOPTS} -C ports/qemu CFLAGS_EXTRA=-DMP_ENDIANNESS_BIG=1
     make ${MAKEOPTS} -C ports/qemu clean
-    make ${MAKEOPTS} -C ports/qemu test
-    make ${MAKEOPTS} -C ports/qemu BOARD=SABRELITE test
+    make ${MAKEOPTS} -C ports/qemu test_full
+    make ${MAKEOPTS} -C ports/qemu BOARD=SABRELITE test_full
 }
 
 function ci_qemu_build_rv32 {
     make ${MAKEOPTS} -C mpy-cross
     make ${MAKEOPTS} -C ports/qemu BOARD=VIRT_RV32 submodules
-    make ${MAKEOPTS} -C ports/qemu BOARD=VIRT_RV32 test
+    make ${MAKEOPTS} -C ports/qemu BOARD=VIRT_RV32 test_full
+
+    # Test building and running native .mpy with rv32imc architecture.
+    ci_native_mpy_modules_build rv32imc
+    make ${MAKEOPTS} -C ports/qemu BOARD=VIRT_RV32 test_natmod
 }
 
 ########################################################################################
@@ -476,10 +481,14 @@ function ci_native_mpy_modules_build {
         arch=$1
     fi
     make -C examples/natmod/features1 ARCH=$arch
-    make -C examples/natmod/features2 ARCH=$arch
+    if [ $arch != rv32imc ]; then
+        # This requires soft-float support on rv32imc.
+        make -C examples/natmod/features2 ARCH=$arch
+        # This requires thread local storage support on rv32imc.
+        make -C examples/natmod/btree ARCH=$arch
+    fi
     make -C examples/natmod/features3 ARCH=$arch
     make -C examples/natmod/features4 ARCH=$arch
-    make -C examples/natmod/btree ARCH=$arch
     make -C examples/natmod/deflate ARCH=$arch
     make -C examples/natmod/framebuf ARCH=$arch
     make -C examples/natmod/heapq ARCH=$arch
